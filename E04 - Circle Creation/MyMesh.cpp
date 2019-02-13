@@ -17,6 +17,25 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		then call the AddTri function to generate a_nSubdivision number of faces
 	*/
 
+	//increments angle of the subdivisions
+	float increment = 0.2f*PI / a_nSubdivisions;
+
+	//points to create the triangle
+	vector3 centerPoint = vector3(0, 0, 0);
+	vector3 point2 = vector3(0, 0, 0);
+	vector3 point3 = vector3(0, 0, 0);
+
+	for (float angle = 0.0f; angle < 2.0f*PI; angle += increment)
+	{
+		point2.x = centerPoint.x + (a_fRadius * sinf(angle));
+		point2.y = centerPoint.y + (a_fRadius * cosf(angle));
+		angle += increment;
+		point3.x = centerPoint.x + (a_fRadius * sinf(angle));
+		point3.y = centerPoint.y + (a_fRadius * cosf(angle));
+		angle -= increment;
+		AddTri(point3, point2, centerPoint);
+	}
+
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
