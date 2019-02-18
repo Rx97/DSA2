@@ -1,4 +1,7 @@
 #include "MyMesh.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 void MyMesh::Init(void)
 {
 	m_bBinded = false;
@@ -276,7 +279,31 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	//increments angle of the subdivisions
+	float increment = 2.0f*PI / a_nSubdivisions;
+
+	//points to create the cone
+	vector3 baseCenter = vector3(0, -a_fHeight / 2, 0);
+	vector3 coneTip = vector3(0, a_fHeight / 2, 0);
+	vector3 point2 = vector3(0, -a_fHeight / 2, 0);
+	vector3 point3 = vector3(0, -a_fHeight / 2 , 0);
+
+	//loops through unit circle at the calculated increment above
+	for (float angle = 0.0f; angle < 2.0f*PI; angle += increment)
+	{
+		//finds the two different points to create tris
+		point2.x = a_fRadius * sinf(angle);
+		point2.z = a_fRadius * cosf(angle);
+		angle += increment;
+		point3.x = a_fRadius * sinf(angle);
+		point3.z = a_fRadius * cosf(angle);
+		angle -= increment;
+		//adds a tri for the side and base
+		AddTri(point3, point2, baseCenter);
+		AddTri(point3, coneTip, point2);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -300,7 +327,37 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//increments angle of the subdivisions
+	float increment = 2.0f*PI / a_nSubdivisions;
+
+	//points to create the cone
+	vector3 baseCenter = vector3(0, -a_fHeight / 2, 0);
+	vector3 topCenter = vector3(0, a_fHeight / 2, 0);
+
+	//loops through unit circle at the calculated increment above
+	for (float angle = 0.0f; angle < 2.0f*PI; angle += increment)
+	{
+		//finds the points to create tris
+		vector3 botL = vector3(a_fRadius * sinf(angle), -a_fHeight / 2, a_fRadius * cosf(angle));
+		angle += increment;
+
+		vector3 botR = vector3(a_fRadius * sinf(angle), -a_fHeight / 2, a_fRadius * cosf(angle));
+		angle -= increment;
+
+		//sets the points for the top side
+		vector3 topL = botL;
+		vector3 topR = botR;
+
+		topL.y = a_fHeight / 2;
+		topR.y = a_fHeight / 2;
+
+		//adds the sides
+		AddQuad(botL, botR, topL, topR);
+
+		//adds tris for the top & bottom
+		AddTri(botL, baseCenter, botR);
+		AddTri(topR, topCenter, topL);
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -330,7 +387,60 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	//increments angle of the subdivisions
+	float increment = 2.0f*PI / a_nSubdivisions;
+
+	//points to create the cone
+	vector3 baseCenter = vector3(0, -a_fHeight / 2, 0);
+	vector3 topCenter = vector3(0, a_fHeight / 2, 0);
+	vector3 refPointL;
+	vector3 refPointR;
+
+	//loops through unit circle at the calculated increment above
+	for (float angle = 0.0f; angle < 2.0f*PI; angle += increment)
+	{
+		//finds the points to use as reference to find the inner and outer points
+		refPointL = vector3(sinf(angle), 0, cosf(angle));
+		angle += increment;
+
+		refPointR = vector3(sinf(angle), 0, cosf(angle));
+		angle -= increment;
+
+		//sets the points for the two radiis
+		//outer points
+		vector3 outerBotL = refPointL * a_fOuterRadius;
+		vector3 outerBotR = refPointR * a_fOuterRadius;
+		outerBotL.y = -a_fHeight / 2;
+		outerBotR.y = -a_fHeight / 2;
+
+		vector3 outerTopL = outerBotL;
+		vector3 outerTopR = outerBotR;
+		outerTopL.y = a_fHeight / 2;
+		outerTopR.y = a_fHeight / 2;
+
+		//inner points
+		vector3 innerBotL = refPointL * a_fInnerRadius;
+		vector3 innerBotR = refPointR * a_fInnerRadius;
+		innerBotL.y = -a_fHeight / 2;
+		innerBotR.y = -a_fHeight / 2;
+
+		vector3 innerTopL = innerBotL;
+		vector3 innerTopR = innerBotR;
+		innerTopL.y = a_fHeight / 2;
+		innerTopR.y = a_fHeight / 2;
+
+		//adds quads
+		//outer sides
+		AddQuad(outerBotL, outerBotR, outerTopL, outerTopR);
+
+		//inner sides
+		AddQuad(innerTopL, innerTopR, innerBotL, innerBotR);
+
+		//top & bottom
+		AddQuad(outerTopL, outerTopR, innerTopL, innerTopR);
+		AddQuad(innerBotL, innerBotR, outerBotL, outerBotR);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -387,7 +497,37 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//increments used to create subdivisions
+	float angleIncrement = PI / a_nSubdivisions;
+	float phiIncrement = PI / a_nSubdivisions;
+
+	//loop through 
+	for (float theta = 0; theta <= 2 * PI; theta += angleIncrement)
+	{
+		for (float phi = 0; phi <= PI; phi += phiIncrement)
+		{
+
+			vector3 point0 = vector3(	a_fRadius * sin(phi + phiIncrement) * sin(theta + angleIncrement), 
+										a_fRadius * cos(phi + phiIncrement),
+										a_fRadius * sin(phi + phiIncrement) * cos(theta + angleIncrement));
+
+			vector3 point1 = vector3(	a_fRadius * sin(phi) * sin(theta + angleIncrement),
+										a_fRadius * cos(phi),
+										a_fRadius * sin(phi) * cos(theta + angleIncrement));
+
+			vector3 point2 = vector3(	a_fRadius * sin(phi) * sin(theta),
+										a_fRadius * cos(phi),
+										a_fRadius * sin(phi) * cos(theta));
+
+			vector3 point3 = vector3(	a_fRadius * sin(phi + phiIncrement) * sin(theta),
+										a_fRadius * cos(phi + phiIncrement),
+										a_fRadius * sin(phi + phiIncrement) * cos(theta));
+
+			AddQuad(point0, point1, point3, point2);
+			AddQuad(point1, point2, point2, point3);
+		}
+	}
+
 	// -------------------------------
 
 	// Adding information about color
