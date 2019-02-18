@@ -497,32 +497,35 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	//increments used to create subdivisions
+	//angle increments used to create subdivisions
+	//one for horizontal, one for vertical
 	float angleIncrement = PI / a_nSubdivisions;
 	float phiIncrement = PI / a_nSubdivisions;
 
-	//loop through 
+	//loop through the angles and subdivision
 	for (float theta = 0; theta <= 2 * PI; theta += angleIncrement)
 	{
 		for (float phi = 0; phi <= PI; phi += phiIncrement)
 		{
+		
+			//find points
+			vector3 point0 = vector3(a_fRadius * sin(phi + phiIncrement) * sin(theta + angleIncrement), 
+						 a_fRadius * cos(phi + phiIncrement),
+						 a_fRadius * sin(phi + phiIncrement) * cos(theta + angleIncrement));
 
-			vector3 point0 = vector3(	a_fRadius * sin(phi + phiIncrement) * sin(theta + angleIncrement), 
-										a_fRadius * cos(phi + phiIncrement),
-										a_fRadius * sin(phi + phiIncrement) * cos(theta + angleIncrement));
+			vector3 point1 = vector3(a_fRadius * sin(phi) * sin(theta + angleIncrement),
+						 a_fRadius * cos(phi),
+						 a_fRadius * sin(phi) * cos(theta + angleIncrement));
 
-			vector3 point1 = vector3(	a_fRadius * sin(phi) * sin(theta + angleIncrement),
-										a_fRadius * cos(phi),
-										a_fRadius * sin(phi) * cos(theta + angleIncrement));
+			vector3 point2 = vector3(a_fRadius * sin(phi) * sin(theta),
+						 a_fRadius * cos(phi),
+						 a_fRadius * sin(phi) * cos(theta));
 
-			vector3 point2 = vector3(	a_fRadius * sin(phi) * sin(theta),
-										a_fRadius * cos(phi),
-										a_fRadius * sin(phi) * cos(theta));
+			vector3 point3 = vector3(a_fRadius * sin(phi + phiIncrement) * sin(theta),
+						 a_fRadius * cos(phi + phiIncrement),
+						 a_fRadius * sin(phi + phiIncrement) * cos(theta));
 
-			vector3 point3 = vector3(	a_fRadius * sin(phi + phiIncrement) * sin(theta),
-										a_fRadius * cos(phi + phiIncrement),
-										a_fRadius * sin(phi + phiIncrement) * cos(theta));
-
+			//draw in the sides
 			AddQuad(point0, point1, point3, point2);
 			AddQuad(point1, point2, point2, point3);
 		}
