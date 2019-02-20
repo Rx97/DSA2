@@ -389,12 +389,12 @@ void Application::ProcessKeyboard(void)
 	for discreet on/off use ProcessKeyboardPressed/Released
 	*/
 #pragma region Camera Position
-	float fSpeed = 1.0f;
+	float fSpeed = 0.05f;
 	float fMultiplier = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
 		sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
 
 	if (fMultiplier)
-		fSpeed *= 5.0f;
+		fSpeed *= 0.05f;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		m_pCameraMngr->MoveForward(fSpeed);
@@ -416,28 +416,23 @@ void Application::ProcessKeyboard(void)
 #pragma endregion
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
-		if (fMultiplier)
-			m_v3Rotation.x -= 1.0f;
-		else
-			m_v3Rotation.x += 1.0f;
+		quaternion q = glm::angleAxis(fSpeed, vector3(1.0f, 0.0f, 0.0f));
+		m_qOrientation = m_qOrientation * q;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
 	{
-		if (fMultiplier)
-			m_v3Rotation.y -= 1.0f;
-		else
-			m_v3Rotation.y += 1.0f;
+		quaternion q = glm::angleAxis(fSpeed, vector3(0.0f, 1.0f, 0.0f));
+		m_qOrientation = m_qOrientation * q;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 	{
-		if (fMultiplier)
-			m_v3Rotation.z -= 1.0f;
-		else
-			m_v3Rotation.z += 1.0f;
+		quaternion q = glm::angleAxis(fSpeed, vector3(0.0f, 0.0f, 1.0f));
+		m_qOrientation = m_qOrientation * q;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 	{
-		m_v3Rotation = vector3(0.0f);
+		quaternion q = glm::angleAxis(fSpeed, vector3(0.0f, 0.0f, 0.0f));
+		m_qOrientation = m_qOrientation * q;
 	}
 }
 //Joystick
