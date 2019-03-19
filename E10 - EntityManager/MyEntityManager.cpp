@@ -151,7 +151,7 @@ void Simplex::MyEntityManager::Update(void)
 {
 	for (uint k = 0; k < m_uEntityCount - 1; k++)
 	{
-		for (uint i = 0; i < m_uEntityCount; i++)
+		for (uint i = k + 1; i < m_uEntityCount; i++)
 		{
 			m_entityList[k]->IsColliding(m_entityList[i]);
 		}
